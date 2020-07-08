@@ -4,6 +4,12 @@ import java.util.Objects;
 
 public class Url {
     private String url;
+    private Integer depth;
+
+    public Url(String url, Integer depth) {
+        this.url = url;
+        this.depth = depth;
+    }
 
     public Url(String url) {
         this.url = url;
@@ -15,6 +21,14 @@ public class Url {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public Integer getDepth() {
+        return depth;
+    }
+
+    public void setDepth(Integer depth) {
+        this.depth = depth;
     }
 
     @Override
