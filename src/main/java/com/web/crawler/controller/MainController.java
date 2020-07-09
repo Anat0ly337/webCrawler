@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @RestController
-@PropertySource("classpath:url.properties")
 public class MainController {
     @Value("${SEED.URL}")
     private String URL;

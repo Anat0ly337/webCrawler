@@ -29,19 +29,17 @@ public class ParserUrl {
     private Set<String> links;
     private String basicDomain;
     private boolean isBasicUrl;
-    Elements linksOnPage;
+
 
     public ParserUrl() {
         links = new HashSet<>();
         isBasicUrl = true;
     }
 
-    public void getStarted(String url) {
-        setupBasicDomain(url);
-    }
 
     public void startMethod(String url) {
         setupBasicDomain(url);
+        Elements linksOnPage = null;
         try {
             linksOnPage = getElements(url);
         } catch (IOException e) {
@@ -50,37 +48,28 @@ public class ParserUrl {
         if (linksOnPage.size() == 0) {
             System.out.println("Пусто");
         }
-        count++;
-
-        while (count < Integer.parseInt(this.maxDepth)) {
-            iterateStartPageLinks(url,1);
-
-        }
-    }
-
-    private void iterateStartPageLinks(String url, int numberElement) {
-        if (linksOnPage.size() != 0) {
-            Element element = linksOnPage.get(numberElement);
-            int depth = 1;
-            getPageLinksOnDepth(element.attr("abs:href"), depth, numberElement);
-        }
-
+        getPageLinksOnDepth(url, 1, linksOnPage, 1);
     }
 
 
     ////////////////////////////////
-    private void getPageLinksOnDepth(String url, int depth, int numberElement) {
-        if (count>=Integer.parseInt(this.limit)){
+    private void getPageLinksOnDepth(String url, int depth, Elements linksOnStartPage, int numberLinkOnStartPage) {
+        if (links.size() > Integer.parseInt(this.limit)) {
             System.out.println("всё");
-            Thread.interrupted();
+            try {
+                Thread.currentThread().join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
-        if (depth >= Integer.parseInt(this.maxDepth)) {
-            iterateStartPageLinks(url, numberElement + 1);
+        if (depth > Integer.parseInt(this.maxDepth)) {
+            depth = 1;
+            String u = getLinkWithoutAnchor(linksOnStartPage.get(numberLinkOnStartPage + 1).attr("abs:href"));
+            getPageLinksOnDepth(u, depth, linksOnStartPage, numberLinkOnStartPage + 1);
         }
-        String link = getLinkWithoutAnchor(url);
-        if (!(links.contains(link) || link == null)) {
-            count++;
-            System.out.println(">> Depth: " + depth + " [" + url + "]" + " " + count);
+        if (!links.contains(url)&& url!=null) {
+            System.out.println(">> Depth: " + depth + " [" + url + "]" + " " + links.size());
+            System.out.println(links.size());
             links.add(url);
 
             Elements linksOnPage = null;
@@ -92,7 +81,7 @@ public class ParserUrl {
             }
             depth++;
             for (Element page : linksOnPage) {
-                getPageLinksOnDepth(page.attr("abs:href"), depth, numberElement);
+                getPageLinksOnDepth(getLinkWithoutAnchor(page.attr("abs:href")), depth, linksOnStartPage, numberLinkOnStartPage);
             }
         }
     }
