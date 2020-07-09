@@ -24,23 +24,9 @@ public class MainController {
     @Autowired
     private ParserUrl parserUrl;
 
-  /*  @GetMapping("/hello")
-    public String sendmail(){
-        parserUrl.getPageLinks(URL,1);
-        return "Hello";
-    }
-
-    @GetMapping("/he")
-    public String sendmailss(){
-        parserUrl.getPageLinkzzz(URL,BASICDEPTH);
-        return "Hello";
-    }
-*/
-
     @GetMapping("/a")
-    public String a() throws IOException {
-        Set<String> power = Stream.of("Musk","Tesla","Mask").collect(Collectors.toSet());
-        parserUrl.getStatisticsFromPage(URL, power);
+    public String a(){
+        parserUrl.startMethod(URL);
         return "a";
     }
 }

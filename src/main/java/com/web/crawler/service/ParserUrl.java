@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Component
 @PropertySource("classpath:application.properties")
@@ -26,92 +25,91 @@ public class ParserUrl {
     private String maxDepth;
     @Value("${SEED.LIMIT}")
     private String limit;
+    private int count = 0;
     private Set<String> links;
     private String basicDomain;
     private boolean isBasicUrl;
+    Elements linksOnPage;
 
     public ParserUrl() {
         links = new HashSet<>();
         isBasicUrl = true;
     }
 
-    public void startMethod(String url){
-        Document document = null;
+    public void getStarted(String url) {
+        setupBasicDomain(url);
+    }
+
+    public void startMethod(String url) {
+        setupBasicDomain(url);
         try {
-            document = Jsoup.connect(url).get();
+            linksOnPage = getElements(url);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("ошибка");
         }
-        Elements linksOnPage = document.select("a[href]");
+        if (linksOnPage.size() == 0) {
+            System.out.println("Пусто");
+        }
+        count++;
 
-        List<Element> pages = linksOnPage.stream().collect(Collectors.toList());
+        while (count < Integer.parseInt(this.maxDepth)) {
+            iterateStartPageLinks(url,1);
 
-        for (int i = 0; i < Integer.parseInt(maxDepth) ; i++) {
-            Element element = pages.get(i);
-
-            String link = getLinkWithoutAnchor(element.attr("abs:href"));
-            if (link == null) {
-                continue;
-            }
-            getPageLinks(link, depth);
         }
     }
 
-
-    public void getPageLinks(String url, int depth,int countStartUrl) {
-        if (isBasicUrl) {
-            setupBasicDomain(URL);
-            isBasicUrl = false;
+    private void iterateStartPageLinks(String url, int numberElement) {
+        if (linksOnPage.size() != 0) {
+            Element element = linksOnPage.get(numberElement);
+            int depth = 1;
+            getPageLinksOnDepth(element.attr("abs:href"), depth, numberElement);
         }
 
-        if (depth>=Integer.parseInt(maxDepth)){
-            getPageLinks(URL,0,countStartUrl+1);
+    }
+
+
+    ////////////////////////////////
+    private void getPageLinksOnDepth(String url, int depth, int numberElement) {
+        if (count>=Integer.parseInt(this.limit)){
+            System.out.println("всё");
+            Thread.interrupted();
         }
+        if (depth >= Integer.parseInt(this.maxDepth)) {
+            iterateStartPageLinks(url, numberElement + 1);
+        }
+        String link = getLinkWithoutAnchor(url);
+        if (!(links.contains(link) || link == null)) {
+            count++;
+            System.out.println(">> Depth: " + depth + " [" + url + "]" + " " + count);
+            links.add(url);
 
-        if (url == null) {
-            if (!(this.links.size() >= Integer.parseInt(this.limit))) {
-                if (!links.contains(url)) {
-                    try {
-                        links.add(url);
-                        System.out.println(links.size());
-                        Document document = Jsoup.connect(url).get();
-                        Elements linksOnPage = document.select("a[href]");
-                        depth++;
-                        System.out.println(">> Depth: " + depth + " [" + url + "]");
-
-                        /*for (Element page : linksOnPage) {
-                            //# - anchor JavaScript
-                            String link = getLinkWithoutAnchor(page.attr("abs:href"));
-                            if (link == null) {
-                                continue;
-                            }
-                            getPageLinks(link, depth);
-                        }*/
-
-                        List<Element> pages = linksOnPage.stream().collect(Collectors.toList());
-
-                        for (int i = 0; i < Integer.parseInt(maxDepth) ; i++) {
-                            Element element = pages.get(i);
-                        }
-
-
-                    } catch (IOException e) {
-                        System.err.println("For '" + url + "': " + e.getMessage());
-                    }
-                }
+            Elements linksOnPage = null;
+            try {
+                linksOnPage = getElements(url);
+            } catch (IOException e) {
+                System.out.println("ошибка");
+                return;
+            }
+            depth++;
+            for (Element page : linksOnPage) {
+                getPageLinksOnDepth(page.attr("abs:href"), depth, numberElement);
             }
         }
     }
 
 
+    private Elements getElements(String url) throws IOException {
+        Document document = Jsoup.connect(url).get();
+        return document.select("a[href]");
+    }
 
 
     private String getLinkWithoutAnchor(String url) {
         String result = url;
+        //in this case we get only wikipedia english links
         if (url.contains(this.basicDomain)) {
             if (url.contains("#")) {
-                int index = url.indexOf("#");
-                url = url.substring(0, index);
+                url = url.substring(0, url.indexOf("#"));
                 result = url;
             }
         } else {
