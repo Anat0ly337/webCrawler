@@ -2,8 +2,7 @@ package com.web.crawler.dto;
 
 import java.io.Serializable;
 
-public class WordHits implements Serializable {
-    private static final long serialVersionUID = -2580064959258637376L;
+public class WordHits {
     private String word;
     private int hit;
 

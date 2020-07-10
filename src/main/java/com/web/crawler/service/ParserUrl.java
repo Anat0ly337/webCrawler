@@ -1,11 +1,10 @@
 package com.web.crawler.service;
 
-import com.web.crawler.dto.Url;
-import com.web.crawler.dto.WordHits;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
@@ -13,7 +12,9 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Component
 @PropertySource("classpath:application.properties")
@@ -30,6 +31,8 @@ public class ParserUrl {
     private String basicDomain;
     private boolean isBasicUrl;
 
+    @Autowired
+    private CSVProvider csvProvider;
 
     public ParserUrl() {
         links = new HashSet<>();
@@ -55,20 +58,17 @@ public class ParserUrl {
     ////////////////////////////////
     private void getPageLinksOnDepth(String url, int depth, Elements linksOnStartPage, int numberLinkOnStartPage) {
         if (links.size() > Integer.parseInt(this.limit)) {
-            System.out.println("всё");
-            try {
-                Thread.currentThread().join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+
+            finalResult();
+
         }
         if (depth > Integer.parseInt(this.maxDepth)) {
             depth = 1;
             String u = getLinkWithoutAnchor(linksOnStartPage.get(numberLinkOnStartPage + 1).attr("abs:href"));
             getPageLinksOnDepth(u, depth, linksOnStartPage, numberLinkOnStartPage + 1);
         }
-        if (!links.contains(url)&& url!=null) {
-            System.out.println(">> Depth: " + depth + " [" + url + "]" + " " + links.size());
+        if (!links.contains(url) && url != null) {
+            // System.out.println(">> Depth: " + depth + " [" + url + "]" + " " + links.size());
             System.out.println(links.size());
             links.add(url);
 
@@ -117,16 +117,18 @@ public class ParserUrl {
         }
     }
 
-
-    public Map getStatisticsFromPage(String url, Set<String> values) throws IOException {
-        Map<Url, List<WordHits>> map = new HashMap<>();
-        Document document = Jsoup.connect(url).get();
-        List<WordHits> wordHits = new ArrayList<>();
-        values.forEach(s -> {
-            int element = document.getElementsMatchingOwnText(s).size();
-            wordHits.add(new WordHits(s, element));
+    private void finalResult() {
+        System.out.println("всё");
+        csvProvider.writeToCSV(links);
+        List<String> result = csvProvider.readCSV();
+        result.forEach(strings -> {
+            System.out.println("-----");
+            System.out.println(strings);
         });
-        map.put(new Url(url), wordHits);
-        return map;
+        try {
+            Thread.currentThread().join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
