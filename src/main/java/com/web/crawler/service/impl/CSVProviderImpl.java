@@ -21,6 +21,17 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * Class for processing CSV documents
+ *
+ * @autor Anatoly Aniskevich
+ * @version 1.1
+ * @PATH basic directory
+ */
+
+/** @PATH basic directory */
+
+/** @words collection for viewed links */
 @Component
 @PropertySource("classpath:application.properties")
 public class CSVProviderImpl implements CSVProvider {
@@ -28,14 +39,20 @@ public class CSVProviderImpl implements CSVProvider {
     private String fileName;
     @Value("${CSV.LIMIT}")
     private String limitCSVrows;
+    /** @PATH basic directory */
     private static final String PATH = "E:\\";
-    private static Stream<String> stream;
+
     private Set<String> words;
 
+    /* given words*/
     public CSVProviderImpl() {
         words = Stream.of("Tesla", "Musk", "Gigafactory", "Elon Mask", "Total").collect(Collectors.toSet());
     }
 
+    /**
+     * write CSV to file
+     * @param urls - found urls from URL
+     */
     @Override
     public void writeToCSV(Set<String> urls) {
         String file = checkDirectory();
@@ -55,6 +72,11 @@ public class CSVProviderImpl implements CSVProvider {
         }
     }
 
+    /**
+     * Writer into file
+     * @param map where string - url and List of WordHits(word and hits him)
+     * @param file - current file
+     */
     private void csvWriter(Map<String, List<WordHits>> map, String file) {
         CSVWriter writer;
         try {
@@ -70,7 +92,10 @@ public class CSVProviderImpl implements CSVProvider {
         }
     }
 
-
+    /**
+     * read from CSV file
+     * @return List of rows into CSV
+     */
     @Override
     public List<String> readCSV() {
         String file = checkDirectory();
@@ -93,7 +118,11 @@ public class CSVProviderImpl implements CSVProvider {
         return sortByTotalHits(list).stream().limit(10).collect(Collectors.toList());
     }
 
-
+    /**
+     * serializator for write into CSV(convert map to list)
+     * @param map link with wordhits
+     * @return List rows with links and hits
+     */
     private List<String[]> iterateMapToList(Map<String, List<WordHits>> map) {
         Iterator it = map.entrySet().iterator();
         List<String[]> list = new ArrayList<>();
@@ -125,6 +154,7 @@ public class CSVProviderImpl implements CSVProvider {
         return map;
     }
 
+    //we check if directory not exist then we'll create this
     private String checkDirectory() {
         String directory = PATH + File.separator + fileName;
         File file = new File(directory);
@@ -139,6 +169,10 @@ public class CSVProviderImpl implements CSVProvider {
         return directory;
     }
 
+    /**
+     * Sort by total hits
+     * @return sorted List of hits
+     */
     private List<String> sortByTotalHits(List<String[]> list) {
         Map<String, Integer> mapForSort = new TreeMap<>();
         Map<String, String> map = new TreeMap<>();
@@ -161,6 +195,10 @@ public class CSVProviderImpl implements CSVProvider {
         return result;
     }
 
+    /**
+     * sort map by value(total hits)
+     * @return map
+     */
     private Map<String, Integer> sortMapByValue(Map<String, Integer> map) {
         return map.entrySet()
                 .stream()

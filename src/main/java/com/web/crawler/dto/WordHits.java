@@ -1,6 +1,6 @@
 package com.web.crawler.dto;
 
-import java.io.Serializable;
+import java.util.Objects;
 
 public class WordHits {
     private String word;
@@ -27,4 +27,16 @@ public class WordHits {
         this.hit = hit;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof WordHits)) return false;
+        WordHits wordHits = (WordHits) o;
+        return Objects.equals(getWord(), wordHits.getWord());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getWord());
+    }
 }
