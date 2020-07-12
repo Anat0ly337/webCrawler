@@ -38,7 +38,6 @@ public class ParserURLImpl implements ParserURL {
         links = new HashSet<>();
     }
 
-
     /*
      * start method
      */
@@ -97,7 +96,7 @@ public class ParserURLImpl implements ParserURL {
     }
 
     /**
-     * read from CSV file
+     * get elements from page
      * @param url - current url
      * @return Elements - elements(href) of url
      */
