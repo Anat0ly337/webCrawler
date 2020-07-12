@@ -111,9 +111,9 @@ public class CSVProviderImpl implements CSVProvider {
             reader.close();
             csvReader.close();
         } catch (IOException e) {
-            throw new CustomException("Невозможно прочитать файл");
+            throw new CustomException("impossible read file");
         } catch (CsvValidationException e) {
-            throw new CustomException("Невозможно прочитать файл");
+            throw new CustomException("impossible read file");
         }
         return sortByTotalHits(list).stream().limit(10).collect(Collectors.toList());
     }
