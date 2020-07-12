@@ -25,4 +25,4 @@ COPY --from=builder BOOT-INF/lib /app/lib
 COPY --from=builder META-INF /app/META-INF
 COPY --from=builder BOOT-INF/classes /app
 EXPOSE 8080
-ENTRYPOINT ["java","-cp","app:app/lib/*","com.godeltech.pt11.PtApplication"]
+ENTRYPOINT ["java","-cp","app:app/lib/*","com.web.crawler.CrawlerApplication"]
