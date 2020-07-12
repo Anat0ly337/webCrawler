@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.w3c.dom.stylesheets.LinkStyle;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -53,8 +52,8 @@ public class IntegrationTest {
         assertTrue(file.length() == 0);
         parserURL.startMethod();
         assertTrue(file.length() > 0);
-        int i = ParserURLImpl.getLinks().size();
-        List<String> stringList = csvProvider.readCSV();
-        assertEquals(10,stringList.size());
+       // int i = ParserURLImpl.getLinks().size();
+        List<String> s = csvProvider.readCSV();
+        assertEquals(10,s.size());
     }
 }
