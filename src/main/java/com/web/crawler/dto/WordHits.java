@@ -11,6 +11,7 @@ public class WordHits {
         this.hit = hit;
     }
 
+
     public String getWord() {
         return word;
     }
